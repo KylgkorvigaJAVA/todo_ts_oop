@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.todoController = void 0;
+exports.TodoController = void 0;
 const todo_1 = require("../models/todo");
 class TodoController {
     constructor() {
@@ -8,43 +8,61 @@ class TodoController {
         this.createTodo = (req, res, next) => {
             try {
                 const task = req.body.task;
-                const newTodo = new todo_1.Todo(Math.random().toString(), task);
+                const newTodo = { id: Math.ceil(Math.random() * 10).toString(), task };
                 this.todos.push(newTodo);
                 res.status(201).json({
-                    message: 'Created new ToDo',
-                    createdTask: newTodo
+                    message: "New todo created",
+                    createdTask: newTodo,
                 });
             }
             catch (error) {
-                console.log(error);
+                next(error);
             }
         };
-        this.cgetTodos = (req, res, next) => {
+        this.getTodo = (req, res, next) => {
             try {
                 res.status(201).json({
-                    todos: this.todos
+                    message: "Todo list returned",
+                    tasks: this.todos
                 });
             }
             catch (error) {
-                console.log(error);
+                next(error);
+            }
+        };
+        this.updateTodo = (req, res, next) => {
+            try {
+                const taskId = req.params.id;
+                const editedTask = req.body.task;
+                const taskIndex = this.todos.findIndex((todo) => todo.id === taskId);
+                this.todos[taskIndex] = new todo_1.Todo(this.todos[taskIndex].id, editedTask);
+                res.status(200).json({
+                    message: "Todo updated",
+                    updatedTask: this.todos[taskIndex]
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        };
+        this.deleteTodo = (req, res, next) => {
+            try {
+                const taskId = req.params.id;
+                const taskIndex = this.todos.findIndex((todo) => todo.id === taskId);
+                this.todos.splice(taskIndex, 1);
+                res.status(200).json({
+                    message: "Todo with index " + taskIndex + " deleted",
+                });
+            }
+            catch (error) {
+                next(error);
             }
         };
         this.createTodo = this.createTodo.bind(this);
+        this.getTodo = this.getTodo.bind(this);
+        this.updateTodo = this.updateTodo.bind(this);
+        this.deleteTodo = this.deleteTodo.bind(this);
     }
 }
-exports.todoController = new TodoController();
-/* const todos: Todo[] = []
 
-export const createTodo = (req:Request, res:Response, next:NextFunction) => {
-    try {
-        const task = (req.body as {task: string}).task
-        const newTodo = new Todo(Math.random().toString(), task)
-        todos.push(newTodo)
-        res.status(201).json({
-            message: "Created new ToDo",
-            createdTask: newTodo
-        })
-    } catch (error) {
-        console.log(error)
-    }
-} */
+exports.TodoController = TodoController;

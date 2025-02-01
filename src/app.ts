@@ -1,19 +1,24 @@
-import express, { Request, Response, NextFunction } from 'express'
-import todoRoutes from './routes/todos'
+import express, { Request, Response, NextFunction } from "express";
+import { json } from "body-parser";
+import todoRoutes from "./routes/todos";
 
-const app = express()
+const app = express();
 
-app.use(express.json())
+app.use(json());
 
-app.use('/todos', todoRoutes)
+app.use("/todos", todoRoutes);
 
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
-    res.json({message: error.message })
-})
+  res.status(500).json({ message: error.message });
+});
 
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
 
 app.listen(3011, () => {
-    console.log('Server is running at http://localhost:3011')
-})
+  console.log("Server started at port 3011");
+});
 
 // ###!!! kasuta terminalis commandi "tsc" asemel - "tsc.cmd" !!!###
